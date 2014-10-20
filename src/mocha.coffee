@@ -17,7 +17,6 @@ deepMochaTimeouts = (suite) ->
 injectBrowser = (done) ->
   debug 'Overriding mocha timeouts', config.mocha
   deepMochaTimeouts @_runnable.parent
-  setMochaTimeouts this
 
   getBrowser config, (err, @browser) =>
     done err
