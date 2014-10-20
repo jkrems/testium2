@@ -5,6 +5,7 @@ config = require './config'
 
 setMochaTimeouts = (obj) ->
   obj.timeout +config.mocha.timeout
+  obj.slow +config.mocha.slow
 
 deepMochaTimeouts = (suite) ->
   setMochaTimeouts suite
