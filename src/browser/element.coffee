@@ -82,7 +82,7 @@ ElementMixin =
 
     foundElement = null
     while (Date.now() - start) < timeout
-      element = @getElementWithoutError(driver, selector)
+      element = @getElementWithoutError(selector)
 
       try
         predicateResult = predicate element
