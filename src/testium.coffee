@@ -30,7 +30,7 @@ getBrowser = (config, done) ->
 
     driverUrl = "#{phantom.baseUrl}/wd/hub"
     desiredCapabilities = browserName: 'phantomjs'
-    debug 'WebDriver(%j)', driverUrl
+    debug 'WebDriver(%j)', driverUrl, desiredCapabilities
     driver = new WebDriver driverUrl, desiredCapabilities
 
     browser = new Browser driver, proxy.baseUrl, 'http://127.0.0.1:4446'
