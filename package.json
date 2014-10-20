@@ -1,0 +1,33 @@
+{
+  "name": "testium2",
+  "version": "1.0.0",
+  "description": "Trying another testium",
+  "main": "lib/testium.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jkrems/testium2.git"
+  },
+  "author": "Various",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/jkrems/testium2/issues"
+  },
+  "homepage": "https://github.com/jkrems/testium2",
+  "devDependencies": {
+    "coffee-script": "~1.8.0"
+  },
+  "dependencies": {
+    "assertive": "~1.4.0",
+    "async": "~0.9.0",
+    "concat-stream": "~1.4.6",
+    "debug": "~2.1.0",
+    "lodash": "~2.4.1",
+    "portscanner": "~1.0.0",
+    "rc": "~0.5.1",
+    "testium": "~1.10.1",
+    "webdriver-http-sync": "~0.10.0"
+  }
+}
