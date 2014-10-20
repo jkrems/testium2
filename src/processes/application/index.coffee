@@ -40,6 +40,7 @@ spawnApplication = (config, callback) ->
     env = defaults {
       NODE_ENV: 'test'
       PORT: port
+      PATH: "./node_modules/.bin:#{process.env.PATH}"
     }, process.env
 
     opts = {port, env, timeout}
