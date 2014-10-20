@@ -29,7 +29,9 @@ getBrowser = (config, done) ->
     {phantom, proxy} = results
 
     driverUrl = "#{phantom.baseUrl}/wd/hub"
-    desiredCapabilities = browserName: 'phantomjs'
+    desiredCapabilities =
+      browserName: 'phantomjs'
+      'phantomjs.page.settings.resourceTimeout': 1500
     debug 'WebDriver(%j)', driverUrl, desiredCapabilities
     driver = new WebDriver driverUrl, desiredCapabilities
 
