@@ -9,6 +9,7 @@ setMochaTimeouts = (obj) ->
 deepMochaTimeouts = (suite) ->
   setMochaTimeouts suite
   suite.suites.forEach deepMochaTimeouts
+  suite.tests.forEach setMochaTimeouts
   suite._beforeEach.forEach setMochaTimeouts
   suite._beforeAll.forEach setMochaTimeouts
   suite._afterEach.forEach setMochaTimeouts
