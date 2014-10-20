@@ -3,14 +3,14 @@
 {waitFor} = require './port'
 
 spawnServer = (name, cmd, args, port, cb) ->
-  logFile = "#{name}.log"
-  require('fs').open logFile, 'w+', (err, logHandle) ->
+  logPath = "#{name}.log"
+  require('fs').open logPath, 'w+', (err, logHandle) ->
     return cb(err) if err?
     child = spawn cmd, args, {
       stdio: [ 'ignore', logHandle, logHandle ]
     }
     child.baseUrl = "http://127.0.0.1:#{port}"
-    child.logFile = logFile
+    child.logPath = logPath
     child.logHandle = logHandle
 
     process.on 'exit', ->

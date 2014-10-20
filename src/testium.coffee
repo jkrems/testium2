@@ -2,6 +2,7 @@ assert = require 'assertive'
 debug = require('debug')('testium:testium')
 
 Browser = require './browser'
+Assertions = require './assert'
 processes = require('./processes')()
 
 WebDriver = require 'webdriver-http-sync'
@@ -22,7 +23,10 @@ getBrowser = (config, done) ->
 
     browser = new Browser driver, proxy.baseUrl, 'http://127.0.0.1:4446'
     browser.navigateTo '/testium-priming-load'
+    debug 'Browser was primed'
 
     done null, browser
 
 exports.getBrowser = getBrowser
+exports.Browser = Browser
+exports.Assertions = Assertions

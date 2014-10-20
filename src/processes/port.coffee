@@ -13,7 +13,7 @@ procError = (proc) ->
   new Error message
 
 waitFor = (proc, port, timeout, callback) ->
-  if !proc.pid
+  if proc.exitCode?
     error = procError(proc)
     return callback(error)
 
@@ -22,7 +22,7 @@ waitFor = (proc, port, timeout, callback) ->
     portscanner.checkPortStatus port, '127.0.0.1', (error, status) ->
       console.error error.stack if error?
 
-      if !proc.pid
+      if proc.exitCode?
         error = procError(proc)
         return callback(error)
 
