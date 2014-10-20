@@ -20,6 +20,10 @@ applyMixins = (obj, mixins = []) ->
     applyMixin obj, require mixinFile
 
 getBrowser = (config, done) ->
+  if typeof config == 'function'
+    done = config
+    config = require './config'
+
   assert.hasType '''
     getBrowser requires a callback, please check the docs for breaking changes
   ''', Function, done
