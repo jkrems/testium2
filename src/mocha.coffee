@@ -20,6 +20,10 @@ injectBrowser = (done) ->
   debug 'Overriding mocha timeouts', config.mocha
   deepMochaTimeouts @_runnable.parent
 
+  initialTimeout = +config.launchTimeout
+  initialTimeout += +config.mocha.timeout
+  @timeout initialTimeout
+
   getBrowser (err, @browser) => done err
 
 module.exports = injectBrowser

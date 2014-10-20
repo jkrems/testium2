@@ -19,7 +19,7 @@ initProcesses = (config) ->
 
     debug 'Launching processes'
     async.auto {
-      proxy: spawnProxy
+      proxy: (done) -> spawnProxy(config, done)
       phantom: spawnPhantom
       application: (done) -> spawnApplication(config, done)
     }, (error, results) ->
