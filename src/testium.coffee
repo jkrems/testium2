@@ -37,6 +37,15 @@ getBrowser = (config, done) ->
     browser.navigateTo '/testium-priming-load'
     debug 'Browser was primed'
 
+    # default to reasonable size
+    # fixes some phantomjs element size/position reporting
+    browser.setPageSize
+      height: 768
+      width: 1024
+
+    debug 'Clearing cookies for clean state'
+    browser.clearCookies()
+
     applyMixins browser, config.mixins?.browser
     applyMixins browser.assert, config.mixins?.assert
 
