@@ -1,83 +1,69 @@
-Api = require '../../../lib/api'
+Browser = require '../../../lib/browser'
 assert = require 'assertive'
-bond = require 'bondjs'
+
+class FakeWebDriver
 
 describe 'API', ->
   describe 'construction', ->
-    targetPort = 1000
-    proxyCommandPort = 2000
-    webdriverServerUrl = 'http://127.0.0.1:4444'
-    desiredCapabilities = {browser: 'phantomjs'}
+    driver = new FakeWebDriver()
+    proxyUrl = 'http://127.0.0.1:1000'
+    commandUrl = 'http://127.0.0.1:2000'
 
-    it 'fails if targetPort is undefined', ->
+    it 'fails if driver is undefined', ->
       assert.throws ->
-        new Api undefined, proxyCommandPort, webdriverServerUrl, desiredCapabilities
+        new Browser undefined, proxyUrl, commandUrl
 
-    it 'fails if targetPort is not a Number', ->
+    it 'fails if driver is not an object', ->
       assert.throws ->
-        new Api '1000', proxyCommandPort, webdriverServerUrl, desiredCapabilities
+        new Browser 'Not a driver', proxyUrl, commandUrl
 
-    it 'fails if proxyCommandPort is undefined', ->
+    it 'fails if proxyUrl is not a String', ->
       assert.throws ->
-        new Api targetPort, undefined, webdriverServerUrl, desiredCapabilities
+        new Browser driver, 1000, commandUrl
 
-    it 'fails if proxyCommandPort is not a Number', ->
+    it 'fails if proxyUrl is undefined', ->
       assert.throws ->
-        new Api targetPort, '2000', webdriverServerUrl, desiredCapabilities
+        new Browser driver, undefined, commandUrl
 
-    it 'fails if webdriverServerUrl is undefined', ->
+    it 'fails if commandUrl is undefined', ->
       assert.throws ->
-        new Api targetPort, proxyCommandPort, undefined, desiredCapabilities
+        new Browser driver, proxyUrl, undefined
 
-    it 'fails if webdriverServerUrl is not a String', ->
-      assert.throws ->
-        new Api targetPort, proxyCommandPort, 999, desiredCapabilities
-
-    it 'fails if desiredCapabilities is not an Object', ->
-      assert.throws ->
-        new Api targetPort, proxyCommandPort, webdriverServerUrl, undefined
-
-    it 'fails if desiredCapabilities is not an Object', ->
-      assert.throws ->
-        new Api targetPort, proxyCommandPort, webdriverServerUrl, (->)
+    it 'fails if commandUrl is not a String', ->
+      err = assert.throws ->
+        new Browser driver, proxyUrl, 999
+      assert.include '''
+        new Browser(driver, proxyUrl, commandUrl) - requires (String) commandUrl
+      ''', err.message
 
     it 'succeeds if all conditions are met', ->
-      # API construction succeds
-      # Connection to an actual webdriver server fails
-      error = assert.throws ->
-        new Api targetPort, proxyCommandPort, webdriverServerUrl, desiredCapabilities
-      assert.equal error.message, "Couldn't connect to server"
+      new Browser driver, proxyUrl, commandUrl
 
   describe '#close', ->
-    dummyContext =
-      driver:
-        close: bond()
-      log:
-        flush: bond()
-
     it 'fails if callback is not a Function', ->
-      assert.throws ->
-        Api.prototype.close.call(dummyContext, undefined)
+      err = assert.throws ->
+        Browser.prototype.close.call({}, undefined)
+      assert.include 'requires (Function) callback', err.message
 
-    it 'succeeds if callback is a function', ->
-      Api.prototype.close.call(dummyContext, ->)
-      assert.truthy dummyContext.driver.close.called
-      assert.truthy dummyContext.log.flush.called
+    it 'succeeds if callback is a function', (done) ->
+      dummyContext =
+        driver:
+          close: -> done()
+      Browser.prototype.close.call(dummyContext, ->)
 
   describe '#evaluate', ->
-    dummyContext =
-      driver:
-        evaluate: bond()
-
     it 'fails if clientFunction is undefined', ->
-      assert.throws ->
-        Api.prototype.evaluate.call(dummyContext, undefined)
+      err = assert.throws ->
+        Browser.prototype.evaluate.call({}, undefined)
+      assert.include 'requires (Function|String) clientFunction', err.message
 
     it 'fails if clientFunction is not a Function or String', ->
-      assert.throws ->
-        Api.prototype.evaluate.call(dummyContext, 999)
+      err = assert.throws ->
+        Browser.prototype.evaluate.call({}, 999)
+      assert.include 'requires (Function|String) clientFunction', err.message
 
-    it 'succeeds if all conditions are met', ->
-      Api.prototype.evaluate.call(dummyContext, ->)
-      assert.truthy dummyContext.driver.evaluate.called
-
+    it 'succeeds if all conditions are met', (done) ->
+      dummyContext =
+        driver:
+          evaluate: -> done()
+      Browser.prototype.evaluate.call(dummyContext, ->)

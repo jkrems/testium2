@@ -30,48 +30,37 @@ NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ###
 
-{extend} = require 'lodash'
 {truthy, hasType} = require 'assertive'
 
-Assertions = require '../assert'
+InputMixin =
+  _setValue: (selector, keys...) ->
+    element = @driver.getElement(selector)
+    truthy "Element not found at selector: #{selector}", element
+    element.clear()
+    element.type keys...
 
-class Browser
-  constructor: (@driver, @proxyUrl, @commandUrl) ->
-    invocation = 'new Browser(driver, proxyUrl, commandUrl)'
-    hasType "#{invocation} - requires (Object) driver", Object, driver
-    hasType "#{invocation} - requires (String) proxyUrl", String, proxyUrl
-    hasType "#{invocation} - requires (String) commandUrl", String, commandUrl
-    @assert = new Assertions @driver, this
+  type: (selector, keys...) ->
+    hasType 'type(selector, keys...) - requires (String) selector', String, selector
+    truthy 'type(selector, keys...) - requires keys', keys.length > 0
+    element = @driver.getElement(selector)
+    truthy "Element not found at selector: #{selector}", element
+    element.type keys...
 
-  close: (callback) ->
-    hasType 'close(callback) - requires (Function) callback', Function, callback
+  setValue: (selector, keys...) ->
+    hasType 'setValue(selector, keys...) - requires (String) selector', String, selector
+    truthy 'setValue(selector, keys...) - requires keys', keys.length > 0
+    @_setValue(selector, keys...)
 
-    @driver.close()
-    callback()
+  clear: (selector) ->
+    hasType 'clear(selector) - requires (String) selector', String, selector
 
-  evaluate: (clientFunction) ->
-    if arguments.length > 1
-      [args..., clientFunction] = arguments
+    element = @driver.getElement(selector)
+    truthy "Element not found at selector: #{selector}", element
+    element.clear()
 
-    invocation = 'evaluate(clientFunction) - requires (Function|String) clientFunction'
-    truthy invocation, clientFunction
-    if typeof clientFunction == 'function'
-      args = JSON.stringify(args ? [])
-      clientFunction = "return (#{clientFunction}).apply(this, #{args});"
-    else if typeof clientFunction != 'string'
-      throw new Error invocation
+  clearAndType: (selector, keys...) ->
+    hasType 'clearAndType(selector, keys...) - requires (String) selector', String, selector
+    truthy 'clearAndType(selector, keys...) - requires keys', keys.length > 0
+    @_setValue(selector, keys...)
 
-    @driver.evaluate(clientFunction)
-
-[
-  require('./alert')
-  require('./cookie')
-  require('./debug')
-  require('./element')
-  require('./input')
-  require('./navigation')
-  require('./page')
-].forEach (mixin) ->
-  extend Browser.prototype, mixin
-
-module.exports = Browser
+module.exports = InputMixin

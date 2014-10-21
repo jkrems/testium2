@@ -1,11 +1,12 @@
-Page = require '../../../lib/api/page'
+PageMixin = require '../../../lib/browser/page'
 assert = require 'assertive'
+{extend} = require 'lodash'
 
 describe 'page api', ->
   describe '#setPageSize', ->
     driver =
       setPageSize: ->
-    page = Page(driver)
+    page = extend {driver}, PageMixin
 
     it 'fails if size is undefined', ->
       assert.throws ->
@@ -27,4 +28,3 @@ describe 'page api', ->
       page.setPageSize
         height: 100
         width: 200
-

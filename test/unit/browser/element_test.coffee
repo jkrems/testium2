@@ -1,11 +1,12 @@
-Element = require '../../../lib/api/element'
+ElementMixin = require '../../../lib/browser/element'
 assert = require 'assertive'
+{extend} = require 'lodash'
 
 describe 'element', ->
   describe '#getElement', ->
     driver =
       getElement: ->
-    element = Element(driver)
+    element = extend {driver}, ElementMixin
 
     it 'fails if selector is undefined', ->
       assert.throws ->
@@ -21,7 +22,7 @@ describe 'element', ->
   describe '#getElements', ->
     driver =
       getElements: ->
-    element = Element(driver)
+    element = extend {driver}, ElementMixin
 
     it 'fails if selector is undefined', ->
       assert.throws ->
@@ -38,7 +39,7 @@ describe 'element', ->
     driver =
       setElementTimeout: ->
       getElement: -> {isVisible: -> true}
-    element = Element(driver)
+    element = extend {driver}, ElementMixin
 
     it 'fails if selector is undefined', ->
       assert.throws ->
@@ -55,7 +56,7 @@ describe 'element', ->
     driver =
       setElementTimeout: ->
       getElement: -> {isVisible: -> false}
-    element = Element(driver)
+    element = extend {driver}, ElementMixin
 
     it 'fails if selector is undefined', ->
       assert.throws ->
@@ -71,7 +72,7 @@ describe 'element', ->
   describe '#click', ->
     driver =
       getElement: -> {click: ->}
-    element = Element(driver)
+    element = extend {driver}, ElementMixin
 
     it 'fails if selector is undefined', ->
       assert.throws ->

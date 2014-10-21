@@ -31,13 +31,25 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ###
 
 {parse: urlParse} = require 'url'
+qs = require 'querystring'
+
+{hasType} = require 'assertive'
+{omit, defaults} = require 'lodash'
 
 waitFor = require './wait'
 
 NavigationMixin =
-  navigateTo: (url, options) ->
-    options ?= {}
-    options.url = url
+  navigateTo: (url, options = {}) ->
+    hasType 'navigateTo(url) - requires (String) url', String, url
+    {query} = options
+    if query?
+      hasType '''
+        navigateTo(url, {query}) - query must be an Object, if provided
+      ''', Object, query
+      sep = if /\?/.test url then '&' else '?'
+      url += sep + qs.encode query
+
+    options = defaults {url}, omit(options, 'query')
 
     hasProtocol = /^[^:\/?#]+:\/\//
     unless hasProtocol.test url

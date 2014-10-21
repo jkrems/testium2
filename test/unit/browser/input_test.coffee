@@ -1,5 +1,6 @@
-Input = require '../../../lib/api/input'
+InputMixin = require '../../../lib/browser/input'
 assert = require 'assertive'
+{extend, noop} = require 'lodash'
 
 describe 'input api', ->
   describe '#type', ->
@@ -7,7 +8,7 @@ describe 'input api', ->
       type: ->
     driver =
       getElement: -> element
-    input = Input(driver)
+    input = extend {driver}, InputMixin
     selector = '.box'
     keys = 'puppies'
 
@@ -17,7 +18,7 @@ describe 'input api', ->
 
     it 'fails if selector is not a String', ->
       assert.throws ->
-        input.type(->, keys)
+        input.type(noop, keys)
 
     it 'fails if keys is not defined', ->
       assert.throws ->
@@ -31,7 +32,7 @@ describe 'input api', ->
       clear: ->
     driver =
       getElement: -> element
-    input = Input(driver)
+    input = extend {driver}, InputMixin
     selector = '.box'
 
     it 'fails if selector is undefined', ->
@@ -40,7 +41,7 @@ describe 'input api', ->
 
     it 'fails if selector is not a String', ->
       assert.throws ->
-        input.clear(->)
+        input.clear(noop)
 
     it 'succeeds if all conditions are met', ->
       input.clear(selector)
@@ -51,7 +52,7 @@ describe 'input api', ->
       type: ->
     driver =
       getElement: -> element
-    input = Input(driver)
+    input = extend {driver}, InputMixin
     selector = '.box'
     keys = 'puppies'
 
@@ -61,7 +62,7 @@ describe 'input api', ->
 
     it 'fails if selector is not a String', ->
       assert.throws ->
-        input.clearAndType(->, keys)
+        input.clearAndType(noop, keys)
 
     it 'fails if keys is not defined', ->
       assert.throws ->

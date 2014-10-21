@@ -30,48 +30,26 @@ NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ###
 
-{extend} = require 'lodash'
-{truthy, hasType} = require 'assertive'
+assert = require 'assertive'
+{ parseLogs, filterLogs } = require './console'
 
-Assertions = require '../assert'
+TYPES = [
+  'error'
+  'warn'
+  'log'
+  'debug'
+]
 
-class Browser
-  constructor: (@driver, @proxyUrl, @commandUrl) ->
-    invocation = 'new Browser(driver, proxyUrl, commandUrl)'
-    hasType "#{invocation} - requires (Object) driver", Object, driver
-    hasType "#{invocation} - requires (String) proxyUrl", String, proxyUrl
-    hasType "#{invocation} - requires (String) commandUrl", String, commandUrl
-    @assert = new Assertions @driver, this
+cachedLogs = []
 
-  close: (callback) ->
-    hasType 'close(callback) - requires (Function) callback', Function, callback
+DebugMixin =
+  getConsoleLogs: (type) ->
+    assert.include(type, TYPES) if type?
 
-    @driver.close()
-    callback()
+    newLogs = parseLogs @driver.getConsoleLogs()
+    logs = cachedLogs.concat(newLogs)
+    { matched, rest } = filterLogs logs, type
+    cachedLogs = rest || []
+    matched || []
 
-  evaluate: (clientFunction) ->
-    if arguments.length > 1
-      [args..., clientFunction] = arguments
-
-    invocation = 'evaluate(clientFunction) - requires (Function|String) clientFunction'
-    truthy invocation, clientFunction
-    if typeof clientFunction == 'function'
-      args = JSON.stringify(args ? [])
-      clientFunction = "return (#{clientFunction}).apply(this, #{args});"
-    else if typeof clientFunction != 'string'
-      throw new Error invocation
-
-    @driver.evaluate(clientFunction)
-
-[
-  require('./alert')
-  require('./cookie')
-  require('./debug')
-  require('./element')
-  require('./input')
-  require('./navigation')
-  require('./page')
-].forEach (mixin) ->
-  extend Browser.prototype, mixin
-
-module.exports = Browser
+module.exports = DebugMixin

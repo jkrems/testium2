@@ -30,48 +30,31 @@ NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ###
 
-{extend} = require 'lodash'
-{truthy, hasType} = require 'assertive'
+_ = require 'lodash'
 
-Assertions = require '../assert'
+logMap =
+  'SEVERE': 'error'
+  'WARNING': 'warn'
+  'INFO': 'log'
+  'DEBUG': 'debug'
 
-class Browser
-  constructor: (@driver, @proxyUrl, @commandUrl) ->
-    invocation = 'new Browser(driver, proxyUrl, commandUrl)'
-    hasType "#{invocation} - requires (Object) driver", Object, driver
-    hasType "#{invocation} - requires (String) proxyUrl", String, proxyUrl
-    hasType "#{invocation} - requires (String) commandUrl", String, commandUrl
-    @assert = new Assertions @driver, this
+filterLogs = (type) ->
+  (log) ->
+    log.type != type
 
-  close: (callback) ->
-    hasType 'close(callback) - requires (Function) callback', Function, callback
+convertLogType = (log) ->
+  if log.level?
+    log.type = logMap[log.level]
+    delete log.level
+  log
 
-    @driver.close()
-    callback()
+module.exports =
+  parseLogs: (logs) ->
+    _.map(logs, convertLogType)
 
-  evaluate: (clientFunction) ->
-    if arguments.length > 1
-      [args..., clientFunction] = arguments
+  filterLogs: (logs, type) ->
+    return {matched: logs} if !type?
 
-    invocation = 'evaluate(clientFunction) - requires (Function|String) clientFunction'
-    truthy invocation, clientFunction
-    if typeof clientFunction == 'function'
-      args = JSON.stringify(args ? [])
-      clientFunction = "return (#{clientFunction}).apply(this, #{args});"
-    else if typeof clientFunction != 'string'
-      throw new Error invocation
+    _.groupBy logs, (log) ->
+      if log.type == type then 'matched' else 'rest'
 
-    @driver.evaluate(clientFunction)
-
-[
-  require('./alert')
-  require('./cookie')
-  require('./debug')
-  require('./element')
-  require('./input')
-  require('./navigation')
-  require('./page')
-].forEach (mixin) ->
-  extend Browser.prototype, mixin
-
-module.exports = Browser

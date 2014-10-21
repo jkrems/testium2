@@ -1,5 +1,5 @@
 assert = require 'assertive'
-{ parseLogs, filterLogs } = require '../../../../lib/api/debug/console'
+{ parseLogs, filterLogs } = require '../../../../lib/browser/debug/console'
 
 describe 'parseLogs', ->
   it 'maps log levels to browser log types', ->
