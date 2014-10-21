@@ -4,7 +4,8 @@ debug = require('debug')('testium:processes:application')
 {defaults} = require 'lodash'
 
 {spawnServer} = require '../server'
-{findOpenPort} = require '../port'
+{findOpenPort, isAvailable} = require '../port'
+initLogs = require '../../logs'
 
 NO_LAUNCH_COMMAND_ERROR =
   'Not launch command found, please add scripts.start to package.json'
@@ -26,26 +27,40 @@ getLaunchCommand = (config, callback) ->
     callback null, pkgJson.scripts.start
 
 spawnApplication = (config, callback) ->
-  {launch, launchTimeout: timeout, appPort: port} = config
+  {launch, launchTimeout: timeout} = config
 
-  return callback() unless launch
+  unless launch
+    return isAvailable config.appPort, (error, available) ->
+      return callback() unless available
+      callback new Error "App not listening on #{config.appPort}"
 
-  getLaunchCommand config, (error, launchCommand) ->
-    return callback(error) if error
+  logs = initLogs config
 
-    args = launchCommand.split /[\s]+/g
-    cmd = args.shift()
-    debug 'Launching application', cmd, args
+  async.auto {
+    port: (done) ->
+      port = config.appPort
+      isAvailable port, (error, available) ->
+        return done(null, port) if available
+        done new Error "Something is already listening on #{port}"
 
-    env = defaults {
-      NODE_ENV: 'test'
-      PORT: port
-      PATH: "./node_modules/.bin:#{process.env.PATH}"
-    }, process.env
+    launchCommand: (done) ->
+      getLaunchCommand config, done
 
-    opts = {port, env, timeout}
-    spawnServer 'application', cmd, args, opts, (error, app) ->
-      return callback(error) if error?
-      callback null, app
+    app: [ 'port', 'launchCommand', (done, {port, launchCommand}) ->
+      args = launchCommand.split /[\s]+/g
+      cmd = args.shift()
+      debug 'Launching application', cmd, args
+
+      env = defaults {
+        NODE_ENV: 'test'
+        PORT: port
+        PATH: "./node_modules/.bin:#{process.env.PATH}"
+      }, process.env
+
+      opts = {port, env, timeout}
+      spawnServer logs, 'application', cmd, args, opts, done
+    ]
+  }, (error, {app}) ->
+    callback error, app
 
 module.exports = spawnApplication

@@ -5,13 +5,13 @@ debug = require('debug')('testium:processes')
 
 {waitFor} = require './port'
 
-spawnServer = (name, cmd, args, opts, cb) ->
+spawnServer = (logs, name, cmd, args, opts, cb) ->
   {port, timeout} = opts
   timeout ?= 1000
 
-  logPath = "#{name}.log"
-  require('fs').open logPath, 'w+', (error, logHandle) ->
+  logs.openLogFile name, 'w+', (error, results) ->
     return cb(error) if error?
+    {fd: logHandle, filename: logPath} = results
 
     spawnOpts = extend {
       stdio: [ 'ignore', logHandle, logHandle ]

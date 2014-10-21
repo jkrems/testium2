@@ -1,14 +1,17 @@
 {spawnServer} = require '../server'
 {findOpenPort} = require '../port'
+initLogs = require '../../logs'
 
-spawnPhantom = (callback) ->
+spawnPhantom = (config, callback) ->
+  logs = initLogs config
+
   findOpenPort (error, port) ->
     return callback(error) if error?
     args = [
       "--webdriver=#{port}"
       '--webdriver-loglevel=DEBUG'
     ]
-    spawnServer 'phantomjs', 'phantomjs', args, {port}, (error, phantom) ->
+    spawnServer logs, 'phantomjs', 'phantomjs', args, {port}, (error, phantom) ->
       return callback(error) if error?
       callback null, phantom
 

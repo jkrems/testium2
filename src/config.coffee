@@ -3,6 +3,7 @@ rc = require 'rc'
 getDefaults = ->
   browser: 'phantomjs'
   appDirectory: process.cwd()
+  logDirectory: './test/log'
   appPort: process.env.PORT || 41998
   launch: false
   launchTimeout: 30000

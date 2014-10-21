@@ -8,7 +8,7 @@ spawnProxy = require './proxy'
 spawnPhantom = require './phantom'
 spawnApplication = require './application'
 
-initProcesses = (config) ->
+initProcesses = ->
   cached = null
 
   ensureRunning: (config, callback) ->
@@ -20,7 +20,7 @@ initProcesses = (config) ->
     debug 'Launching processes'
     async.auto {
       proxy: (done) -> spawnProxy(config, done)
-      phantom: spawnPhantom
+      phantom: (done) -> spawnPhantom(config, done)
       application: (done) -> spawnApplication(config, done)
     }, (error, results) ->
       cached = {error, results}
