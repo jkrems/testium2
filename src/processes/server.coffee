@@ -20,12 +20,17 @@ spawnServer = (logs, name, cmd, args, opts, cb) ->
     child.baseUrl = "http://127.0.0.1:#{port}"
     child.logPath = logPath
     child.logHandle = logHandle
+    child.name = name
 
     process.on 'exit', ->
-      try child.kill()
+      try child.kill 'SIGINT'
+      catch err
+        console.error err.stack
 
     process.on 'uncaughtException', (error) ->
-      try child.kill()
+      try child.kill 'SIGINT'
+      catch err
+        console.error err.stack
       throw error
 
     debug 'start %s on port %s', name, port
