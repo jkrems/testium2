@@ -1,11 +1,12 @@
-Cookie = require '../../../lib/api/cookie'
+CookieMixin = require '../../../lib/browser/cookie'
 assert = require 'assertive'
+{extend} = require 'lodash'
 
 describe 'cookie', ->
   describe '#setCookie', ->
     driver =
       setCookie: ->
-    cookie = Cookie(driver)
+    cookie = extend {driver}, CookieMixin
 
     it 'fails if cookie is undefined', ->
       assert.throws ->
@@ -22,7 +23,7 @@ describe 'cookie', ->
   describe '#getCookie', ->
     driver =
       getCookies: -> []
-    cookie = Cookie(driver)
+    cookie = extend {driver}, CookieMixin
 
     it 'fails if name is undefined', ->
       assert.throws ->
@@ -41,7 +42,7 @@ describe 'cookie', ->
       value: 'eyJoZWFkZXJzIjp7InNlcnZlciI6Im5vZGUtc3RhdGljLzAuNy4wIiwiY2FjaGUtY29udHJvbCI6Im1heC1hZ2U9MzYwMCIsImV0YWciOiJcIjE1ODI5ODQtMjUyNi0xMzkxNTI5MDM2MDAwXCIiLCJkYXRlIjoiTW9uLCAwMyBNYXIgMjAxNCAwNDo0MDoxNCBHTVQiLCJsYXN0LW1vZGlmaWVkIjoiVHVlLCAwNCBGZWIgMjAxNCAxNTo1MDozNiBHTVQiLCJjb250ZW50LXR5cGUiOiJ0ZXh0L2h0bWwiLCJjb250ZW50LWxlbmd0aCI6IjI1MjYiLCJjb25uZWN0aW9uIjoia2VlcC1hbGl2ZSIsIkNhY2hlLUNvbnRyb2wiOiJuby1zdG9yZSJ9LCJzdGF0dXNDb2RlIjoyMDB9'
     driver =
       getCookies: -> [testiumCookie]
-    cookie = Cookie(driver)
+    cookie = extend {driver}, CookieMixin
 
     it 'fails if name is undefined', ->
       assert.throws ->

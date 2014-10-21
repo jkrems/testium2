@@ -1,5 +1,5 @@
 assert = require 'assertive'
-inferCapabilities = require '../../../lib/api/capabilities'
+inferCapabilities = require '../../../lib/browser/capabilities'
 
 describe 'capabilities', ->
   describe 'consoleLogs', ->

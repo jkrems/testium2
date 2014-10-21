@@ -1,20 +1,20 @@
-Alert = require '../../../lib/api/alert'
+AlertMixin = require '../../../lib/browser/alert'
 assert = require 'assertive'
+{extend} = require 'lodash'
 
 describe 'alert', ->
   driver =
     typeAlert: ->
-  alert = Alert(driver)
+  alert = extend {driver}, AlertMixin
 
-  describe '#type', ->
+  describe '#typeAlert', ->
     it 'fails if text is undefined', ->
       assert.throws ->
-        alert.type(undefined)
+        alert.typeAlert(undefined)
 
     it 'fails if text is not a String', ->
       assert.throws ->
-        alert.type(->)
+        alert.typeAlert(->)
 
     it 'succeeds if text is a String', ->
-      alert.type 'some text'
-
+      alert.typeAlert 'some text'

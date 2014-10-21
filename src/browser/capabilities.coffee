@@ -30,42 +30,27 @@ NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ###
 
+# Webdriver provides a specific set of capabilities
+# of the attached browser. However, this set is
+# incomplete. Here we infer a few more capabilities.
+
+semver = require 'semver'
 {extend} = require 'lodash'
-{truthy, hasType} = require 'assertive'
 
-Assertions = require '../assert'
+inferConsoleLogs = (capabilities) ->
+  phantomjs = capabilities.browserName == 'phantomjs'
+  if phantomjs
+    lt197 = semver.satisfies(capabilities.version, '<1.9.7')
+    return 'none' if lt197
+    return 'basic'
+  'all'
 
-class Browser
-  constructor: (@driver, @proxyUrl, @commandUrl) ->
-    @assert = new Assertions @driver, this
+module.exports = (capabilities) ->
+  testium = {}
+  testium.consoleLogs = inferConsoleLogs(capabilities)
 
-  close: (callback) ->
-    hasType 'close(callback) - requires (Function) callback', Function, callback
+  extend capabilities, {
+    testium
+  }
 
-    @driver.close()
-    callback()
-
-  evaluate: (clientFunction) ->
-    if arguments.length > 1
-      [args..., clientFunction] = arguments
-
-    invocation = 'evaluate(clientFunction) - requires (Function|String) clientFunction'
-    truthy invocation, clientFunction
-    if typeof clientFunction == 'function'
-      args = JSON.stringify(args ? [])
-      clientFunction = "return (#{clientFunction}).apply(this, #{args});"
-    else if typeof clientFunction != 'string'
-      throw new Error invocation
-
-    @driver.evaluate(clientFunction)
-
-[
-  require('./alert')
-  require('./cookie')
-  require('./element')
-  require('./navigation')
-  require('./page')
-].forEach (mixin) ->
-  extend Browser.prototype, mixin
-
-module.exports = Browser
+  capabilities
