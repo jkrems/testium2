@@ -2,8 +2,9 @@ path = require 'path'
 
 assert = require 'assertive'
 debug = require('debug')('testium:testium')
-{each, extend} = require 'lodash'
+{each, extend, clone} = require 'lodash'
 
+config = require './config'
 Browser = require './browser'
 Assertions = require './assert'
 processes = require('./processes')()
@@ -19,10 +20,14 @@ applyMixins = (obj, mixins = []) ->
     mixinFile = path.resolve process.cwd(), mixin
     applyMixin obj, require mixinFile
 
-getBrowser = (config, done) ->
-  if typeof config == 'function'
-    done = config
-    config = require './config'
+cachedDriver = null
+
+getBrowser = (options, done) ->
+  if typeof options == 'function'
+    done = options
+    options = {}
+
+  reuseSession = options.reuseSession ? true
 
   assert.hasType '''
     getBrowser requires a callback, please check the docs for breaking changes
@@ -32,30 +37,42 @@ getBrowser = (config, done) ->
     return done(err) if err?
     {phantom, proxy} = results
 
-    driverUrl = "#{phantom.baseUrl}/wd/hub"
-    desiredCapabilities =
-      browserName: 'phantomjs'
-      'phantomjs.page.settings.resourceTimeout': 2500
-    debug 'WebDriver(%j)', driverUrl, desiredCapabilities
-    driver = new WebDriver driverUrl, desiredCapabilities
+    createDriver = ->
+      driverUrl = "#{phantom.baseUrl}/wd/hub"
+      desiredCapabilities =
+        browserName: 'phantomjs'
+        'phantomjs.page.settings.resourceTimeout': 2500
+      debug 'WebDriver(%j)', driverUrl, desiredCapabilities
+      cachedDriver = new WebDriver driverUrl, desiredCapabilities
 
-    browser = new Browser driver, proxy.baseUrl, 'http://127.0.0.1:4446'
-    browser.navigateTo '/testium-priming-load'
-    debug 'Browser was primed'
+    createBrowser = ->
+      useCachedDriver = reuseSession && cachedDriver?
+      driver =
+        if useCachedDriver then cachedDriver else createDriver()
 
-    # default to reasonable size
-    # fixes some phantomjs element size/position reporting
-    browser.setPageSize
-      height: 768
-      width: 1024
+      browser = new Browser driver, proxy.baseUrl, 'http://127.0.0.1:4446'
 
-    debug 'Clearing cookies for clean state'
-    browser.clearCookies()
+      unless useCachedDriver
+        browser.navigateTo '/testium-priming-load'
+        debug 'Browser was primed'
+      else
+        debug 'Browser was already primed'
 
-    applyMixins browser, config.mixins?.browser
-    applyMixins browser.assert, config.mixins?.assert
+      debug 'Clearing cookies for clean state'
+      browser.clearCookies()
 
-    done null, browser
+      # default to reasonable size
+      # fixes some phantomjs element size/position reporting
+      browser.setPageSize
+        height: 768
+        width: 1024
+
+      applyMixins browser, config.mixins?.browser
+      applyMixins browser.assert, config.mixins?.assert
+
+      browser
+
+    done null, createBrowser()
 
 exports.getBrowser = getBrowser
 exports.Browser = Browser

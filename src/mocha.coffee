@@ -16,7 +16,7 @@ deepMochaTimeouts = (suite) ->
   suite._afterEach.forEach setMochaTimeouts
   suite._afterAll.forEach setMochaTimeouts
 
-injectBrowser = (done) ->
+injectBrowser = (options = {}) -> (done) ->
   debug 'Overriding mocha timeouts', config.mocha
   deepMochaTimeouts @_runnable.parent
 
@@ -24,6 +24,6 @@ injectBrowser = (done) ->
   initialTimeout += +config.mocha.timeout
   @timeout initialTimeout
 
-  getBrowser (err, @browser) => done err
+  getBrowser options, (err, @browser) => done err
 
 module.exports = injectBrowser
