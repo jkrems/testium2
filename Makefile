@@ -31,8 +31,11 @@ test-all: build
 	@make test-unit
 
 build:
-	@./node_modules/.bin/coffee -cbo lib src
+	@./node_modules/.bin/coffee --no-header -cbo lib src
 	@./node_modules/.bin/npub prep src
+
+watch:
+	@./node_modules/.bin/coffee --no-header -cwbo lib src
 
 prepublish:
 	./node_modules/.bin/npub prep
