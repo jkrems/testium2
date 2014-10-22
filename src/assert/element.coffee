@@ -36,18 +36,18 @@ assert = require 'assertive'
 isTextOrRegexp = (textOrRegExp) ->
   isString(textOrRegExp) || isRegExp(textOrRegExp)
 
-getProperty = (driver, selector, property) ->
-  elements = driver.getElements selector
-  count = elements.length
-
-  throw new Error "Element not found for selector: #{selector}" if count is 0
-  throw new Error """assertion needs a unique selector!
-    #{selector} has #{count} hits in the page""" unless count is 1
-
-  element = elements[0]
-  [ element, element.get(property) ]
-
 ElementMixin =
+  _getElementWithProperty: (selector, property) ->
+    elements = @driver.getElements selector
+    count = elements.length
+
+    throw new Error "Element not found for selector: #{selector}" if count is 0
+    throw new Error """assertion needs a unique selector!
+      #{selector} has #{count} hits in the page""" unless count is 1
+
+    element = elements[0]
+    [ element, element.get(property) ]
+
   elementHasText: (selector, textOrRegExp) ->
     if arguments.length is 3
       [doc, selector, textOrRegExp] = arguments
@@ -58,7 +58,7 @@ ElementMixin =
     assert.truthy 'elementHasText(selector, textOrRegExp) - requires selector', isString selector
     assert.truthy 'elementHasText(selector, textOrRegExp) - requires textOrRegExp', isTextOrRegexp textOrRegExp
 
-    [element, actualText] = getProperty(@driver, selector, 'text')
+    [element, actualText] = @_getElementWithProperty(selector, 'text')
 
     if textOrRegExp == ''
       assert.equal textOrRegExp, actualText
@@ -77,7 +77,7 @@ ElementMixin =
     assert.truthy 'elementLacksText(selector, textOrRegExp) - requires selector', isString selector
     assert.truthy 'elementLacksText(selector, textOrRegExp) - requires textOrRegExp', isTextOrRegexp textOrRegExp
 
-    [element, actualText] = getProperty(@driver, selector, 'text')
+    [element, actualText] = @_getElementWithProperty(selector, 'text')
 
     assert.notInclude doc, textOrRegExp, actualText
     element
@@ -92,7 +92,7 @@ ElementMixin =
     assert.truthy 'elementHasValue(selector, textOrRegExp) - requires selector', isString selector
     assert.truthy 'elementHasValue(selector, textOrRegExp) - requires textOrRegExp', isTextOrRegexp textOrRegExp
 
-    [element, actualValue] = getProperty(@driver, selector, 'value')
+    [element, actualValue] = @_getElementWithProperty(selector, 'value')
 
     if textOrRegExp == ''
       assert.equal textOrRegExp, actualValue
@@ -111,7 +111,7 @@ ElementMixin =
     assert.truthy 'elementLacksValue(selector, textOrRegExp) - requires selector', isString selector
     assert.truthy 'elementLacksValue(selector, textOrRegExp) - requires textOrRegExp', isTextOrRegexp textOrRegExp
 
-    [element, actualValue] = getProperty(@driver, selector, 'value')
+    [element, actualValue] = @_getElementWithProperty(selector, 'value')
 
     assert.notInclude doc, textOrRegExp, actualValue
     element

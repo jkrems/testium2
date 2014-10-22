@@ -60,6 +60,7 @@ getBrowser = (options, done) ->
     options = {}
 
   reuseSession = options.reuseSession ? true
+  keepCookies = options.keepCookies ? false
 
   assert.hasType '''
     getBrowser requires a callback, please check the docs for breaking changes
@@ -83,21 +84,7 @@ getBrowser = (options, done) ->
         if useCachedDriver then cachedDriver else createDriver()
 
       browser = new Browser driver, proxy.baseUrl, 'http://127.0.0.1:4446'
-
-      unless useCachedDriver
-        browser.navigateTo '/testium-priming-load'
-        debug 'Browser was primed'
-      else
-        debug 'Browser was already primed'
-
-      debug 'Clearing cookies for clean state'
-      browser.clearCookies()
-
-      # default to reasonable size
-      # fixes some phantomjs element size/position reporting
-      browser.setPageSize
-        height: 768
-        width: 1024
+      browser.init { skipPriming: useCachedDriver, keepCookies }
 
       applyMixins browser, config.mixins?.browser
       applyMixins browser.assert, config.mixins?.assert

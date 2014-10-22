@@ -33,6 +33,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 fs = require 'fs'
 path = require 'path'
 
+mkdirp = require 'mkdirp'
 debug = require('debug')('testium:logs')
 
 module.exports = (config) ->
@@ -43,14 +44,18 @@ module.exports = (config) ->
 
   openLogFile = (name, flags, callback) ->
     filename = resolveLogFile name
+    dirname = path.dirname filename
 
     if typeof flags == 'function'
       callback = flags
       flags = 'w+'
 
     debug 'Opening log', filename
-    fs.open filename, flags, (error, fd) ->
-      return callback(error, {}) if error?
-      callback null, {filename, fd}
+    mkdirp dirname, (error) ->
+      return callback(error) if error?
+
+      fs.open filename, flags, (error, fd) ->
+        return callback(error, {}) if error?
+        callback null, {filename, fd}
 
   {openLogFile, resolveLogFile}

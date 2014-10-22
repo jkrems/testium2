@@ -39,14 +39,18 @@ isAvailable = (port, callback) ->
     return callback(error) if error?
     callback null, (status == 'closed')
 
-procError = (proc) ->
-  message = "Process \"#{proc.name}\" crashed. See log at: #{proc.logPath}."
+procCrashedError = (proc) ->
+  message =
+    """
+    Process \"#{proc.name}\" crashed with code #{proc.exitCode}.
+    See log at: #{proc.logPath}
+    """
   message += "\n#{proc.error.trim()}" if proc.error?.length > 0
   new Error message
 
 waitFor = (proc, port, timeout, callback) ->
   if proc.exitCode?
-    error = procError(proc)
+    error = procCrashedError(proc)
     return callback(error)
 
   startTime = Date.now()
@@ -55,7 +59,7 @@ waitFor = (proc, port, timeout, callback) ->
       console.error error.stack if error?
 
       if proc.exitCode?
-        error = procError(proc)
+        error = procCrashedError(proc)
         return callback(error)
 
       if error? || status == 'closed'

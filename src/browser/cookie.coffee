@@ -78,7 +78,7 @@ CookieMixin =
     find cookies, {name}
 
   getCookies: ->
-    removeTestiumCookie driver.getCookies()
+    removeTestiumCookie @driver.getCookies()
 
   clearCookies: ->
     @driver.clearCookies()

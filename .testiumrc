@@ -1,0 +1,4 @@
+launch = true
+launchCommand = coffee test/app
+logDirectory = ./test/integration_log
+screenshotDirectory = ./test/integration_log/screenshots

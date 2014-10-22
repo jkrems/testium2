@@ -1,9 +1,8 @@
-{getBrowser} = require '../../lib/index'
+injectBrowser = require '../../mocha'
 assert = require 'assertive'
 
 describe 'cookies', ->
-  before ->
-    @browser = getBrowser()
+  before injectBrowser()
 
   it 'can be set individually', ->
     @browser.setCookie

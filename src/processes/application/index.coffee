@@ -58,8 +58,12 @@ getLaunchCommand = (config, callback) ->
 
     callback null, pkgJson.scripts.start
 
+isTrulyTrue = (value) ->
+  value == true || value == '1' || value == 'true'
+
 spawnApplication = (config, callback) ->
   {launch, launchTimeout: timeout} = config
+  launch = isTrulyTrue launch
 
   unless launch
     return isAvailable config.appPort, (error, available) ->

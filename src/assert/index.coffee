@@ -38,6 +38,7 @@ class Assertions
 [
   require('./element')
   require('./imgLoaded')
+  require('./navigation')
 ].forEach (mixin) ->
   extend Assertions.prototype, mixin
 

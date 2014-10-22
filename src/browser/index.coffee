@@ -32,8 +32,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 {extend} = require 'lodash'
 {truthy, hasType} = require 'assertive'
+debug = require('debug')('testium:browser')
 
 Assertions = require '../assert'
+patchCapabilities = require './capabilities'
 
 class Browser
   constructor: (@driver, @proxyUrl, @commandUrl) ->
@@ -42,6 +44,23 @@ class Browser
     hasType "#{invocation} - requires (String) proxyUrl", String, proxyUrl
     hasType "#{invocation} - requires (String) commandUrl", String, commandUrl
     @assert = new Assertions @driver, this
+
+  init: ({skipPriming, keepCookies} = {}) ->
+    if skipPriming
+      debug 'Skipping priming load'
+    else
+      @navigateTo '/testium-priming-load'
+      debug 'Browser was primed'
+    
+    if keepCookies
+      debug 'Keeping cookies around'
+    else
+      debug 'Clearing cookies for clean state'
+      @clearCookies()
+
+    # default to reasonable size
+    # fixes some phantomjs element size/position reporting
+    @setPageSize { height: 768, width: 1024 }
 
   close: (callback) ->
     hasType 'close(callback) - requires (Function) callback', Function, callback
@@ -62,6 +81,11 @@ class Browser
       throw new Error invocation
 
     @driver.evaluate(clientFunction)
+
+Object.defineProperty Browser.prototype, 'capabilities', {
+  get: ->
+    patchCapabilities @driver.capabilities
+}
 
 [
   require('./alert')

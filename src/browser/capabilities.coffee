@@ -49,8 +49,4 @@ module.exports = (capabilities) ->
   testium = {}
   testium.consoleLogs = inferConsoleLogs(capabilities)
 
-  extend capabilities, {
-    testium
-  }
-
-  capabilities
+  extend {testium}, capabilities

@@ -1,9 +1,10 @@
-{getBrowser} = require '../../lib/index'
+injectBrowser = require '../../mocha'
 assert = require 'assertive'
 
 describe 'console logs', ->
+  before injectBrowser()
+
   before ->
-    @browser = getBrowser()
     @browser.navigateTo '/'
     @browser.assert.httpStatus 200
 

@@ -1,0 +1,14 @@
+Listening on port 4445 and proxying to 41998.
+Listening for commands on port 4446.
+
+[System] Marking new page request with options: {"url":"/testium-priming-load"}
+--> GET /testium-priming-load (prime the browser)
+
+[System] Marking new page request with options: {"url":"/"}
+--> GET /
+    {"port":41998,"path":"/","method":"GET","headers":{"user-agent":"Mozilla/5.0 (Macintosh; PPC Mac OS X) AppleWebKit/534.34 (KHTML, like Gecko) PhantomJS/1.9.7 Safari/534.34","accept":"text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8","connection":"keep-alive","accept-encoding":"gzip","accept-language":"en-US,*","host":"127.0.0.1:4445","cache-control":"no-store"}}
+<-- Set-Cookie: _testium_=eyJoZWFkZXJzIjp7InNlcnZlciI6Im5vZGUtc3RhdGljLzAuNy42IiwiY2FjaGUtY29udHJvbCI6Im1heC1hZ2U9MzYwMCIsImV0YWciOiJcIjc4MjU3NTUzLTI1MjYtMTQxMzkyNTUyNDAwMFwiIiwiZGF0ZSI6IldlZCwgMjIgT2N0IDIwMTQgMDA6MDU6NTMgR01UIiwibGFzdC1tb2RpZmllZCI6IlR1ZSwgMjEgT2N0IDIwMTQgMjE6MDU6MjQgR01UIiwiY29udGVudC10eXBlIjoidGV4dC9odG1sIiwiY29udGVudC1sZW5ndGgiOiIyNTI2IiwiY29ubmVjdGlvbiI6ImtlZXAtYWxpdmUiLCJDYWNoZS1Db250cm9sIjoibm8tc3RvcmUifSwic3RhdHVzQ29kZSI6MjAwfQ==; path=/
+<-- 200 /
+--> GET /non-existent-image.jpg
+    {"port":41998,"path":"/non-existent-image.jpg","method":"GET","headers":{"user-agent":"Mozilla/5.0 (Macintosh; PPC Mac OS X) AppleWebKit/534.34 (KHTML, like Gecko) PhantomJS/1.9.7 Safari/534.34","referer":"http://127.0.0.1:4445/","accept":"*/*","cookie":"_testium_=eyJoZWFkZXJzIjp7InNlcnZlciI6Im5vZGUtc3RhdGljLzAuNy42IiwiY2FjaGUtY29udHJvbCI6Im1heC1hZ2U9MzYwMCIsImV0YWciOiJcIjc4MjU3NTUzLTI1MjYtMTQxMzkyNTUyNDAwMFwiIiwiZGF0ZSI6IldlZCwgMjIgT2N0IDIwMTQgMDA6MDU6NTMgR01UIiwibGFzdC1tb2RpZmllZCI6IlR1ZSwgMjEgT2N0IDIwMTQgMjE6MDU6MjQgR01UIiwiY29udGVudC10eXBlIjoidGV4dC9odG1sIiwiY29udGVudC1sZW5ndGgiOiIyNTI2IiwiY29ubmVjdGlvbiI6ImtlZXAtYWxpdmUiLCJDYWNoZS1Db250cm9sIjoibm8tc3RvcmUifSwic3RhdHVzQ29kZSI6MjAwfQ==","connection":"keep-alive","accept-encoding":"gzip","accept-language":"en-US,*","host":"127.0.0.1:4445","cache-control":"no-store"}}
+<-- 404 /non-existent-image.jpg

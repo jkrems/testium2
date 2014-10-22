@@ -1,8 +1,8 @@
-{assert, getBrowser} = require '../../lib/index'
+injectBrowser = require '../../mocha'
+assert = require 'assertive'
 
 describe 'forced screenshot', ->
-  before ->
-    @browser = getBrowser()
+  before injectBrowser()
 
   it 'my test', ->
     @browser.navigateTo '/'
