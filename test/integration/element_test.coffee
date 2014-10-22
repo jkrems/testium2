@@ -115,7 +115,7 @@ describe 'element', ->
       expected = 'Assertion failed: elementLacksText: .only\n\u001b[39;49;00mnotInclude expected needle not to be found in haystack\n- needle: \"only\"\nhaystack: \"only one here\"'
       assert.equal expected, error.message
 
-  describe.only 'elementHasValue', ->
+  describe 'elementHasValue', ->
     it 'finds and returns a single element', ->
       element = @browser.assert.elementHasValue('#text-input', 'initialvalue')
       assert.equal "resolve the element's id", 'text-input', element.get('id')

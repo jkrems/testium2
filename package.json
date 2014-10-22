@@ -46,7 +46,7 @@
     "rc": "~0.5.1",
     "read-package-json": "^1.2.7",
     "semver": "~4.1.0",
-    "webdriver-http-sync": "~0.10.0"
+    "webdriver-http-sync": "git://github.com/groupon-testium/webdriver-http-sync#jk/value-is-an-attribute"
   },
   "devDependencies": {
     "coffee-script": "^1.8.0",
