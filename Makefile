@@ -4,12 +4,12 @@ setup:
 	npm install
 
 .PHONY: test
-test: test-unit
+test: test-unit test-integration
 # test-integration test-screenshot
 
 test-integration: build
 	@echo "# Integration Tests #"
-	@./node_modules/.bin/coffee test/integration_runner.coffee
+	@./node_modules/.bin/mocha test/integration
 	@echo ""
 	@echo ""
 
