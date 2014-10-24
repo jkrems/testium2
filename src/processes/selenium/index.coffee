@@ -31,6 +31,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ###
 
 path = require 'path'
+http = require 'http'
 
 {ensure: ensureBinaries} = require 'selenium-download'
 async = require 'async'
@@ -42,8 +43,11 @@ initLogs = require '../../logs'
 BIN_PATH = path.join(__dirname, '..', '..', '..', 'bin')
 SELENIUM_TIMEOUT = 90000 # 90 seconds
 
-ensureSeleniumListening = (url, callback) ->
-  callback new Error 'Not implemented'
+ensureSeleniumListening = (driverUrl, callback) ->
+  req = http.get "#{driverUrl}/status", (response) ->
+    callback null, { driverUrl }
+
+  req.on 'error', callback
 
 createSeleniumArguments = ->
   chromeDriverPath = path.join BIN_PATH, 'chromedriver'

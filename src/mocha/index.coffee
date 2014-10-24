@@ -90,6 +90,8 @@ injectBrowser = (options = {}) -> (done) ->
   reuseSession = options.reuseSession ?= true
 
   getBrowser options, (err, @browser) =>
+    return done(err) if err?
+
     screenshotDirectory = config.screenshotDirectory
     if screenshotDirectory
       screenshotDirectory =
@@ -105,6 +107,6 @@ injectBrowser = (options = {}) -> (done) ->
 
     addCloseBrowserHook browserScopeSuite, browser
 
-    done err
+    done()
 
 module.exports = injectBrowser
