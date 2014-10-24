@@ -51,7 +51,34 @@ deepMochaTimeouts = (suite) ->
   suite._afterEach.forEach setMochaTimeouts
   suite._afterAll.forEach setMochaTimeouts
 
+closeBrowser = (browser) ->
+  (done) ->
+    browser.close (error) ->
+      return done() unless error?
+      error.message = "#{error.message} (while closing browser)"
+      done error
+
+CLOSE_BROWSER = 'closeBrowser'
+CLOSE_BROWSER_PATTERN = /hook: closeBrowser$/
+isCloseBrowserHook = (hook) ->
+  CLOSE_BROWSER_PATTERN.test hook.title
+
+addCloseBrowserHook = (suite, browser) ->
+  return if suite._afterAll.some isCloseBrowserHook
+  suite.afterAll CLOSE_BROWSER, closeBrowser(browser)
+
+getRootSuite = (suite) ->
+  if suite.parent
+    getRootSuite suite.parent
+  else
+    suite
+
+DEFAULT_TITLE = '"before all" hook'
+BETTER_TITLE =  '"before all" hook: Testium setup hook'
 injectBrowser = (options = {}) -> (done) ->
+  if @_runnable.title == DEFAULT_TITLE
+    @_runnable.title = BETTER_TITLE
+
   debug 'Overriding mocha timeouts', config.mocha
   suite = @_runnable.parent
   deepMochaTimeouts suite
@@ -59,6 +86,8 @@ injectBrowser = (options = {}) -> (done) ->
   initialTimeout = +config.launchTimeout
   initialTimeout += +config.mocha.timeout
   @timeout initialTimeout
+
+  reuseSession = options.reuseSession ?= true
 
   getBrowser options, (err, @browser) =>
     screenshotDirectory = config.screenshotDirectory
@@ -68,6 +97,13 @@ injectBrowser = (options = {}) -> (done) ->
 
       afterEachHook = takeScreenshotOnFailure screenshotDirectory
       suite.afterEach 'takeScreenshotOnFailure', afterEachHook
+
+    browserScopeSuite =
+      if reuseSession
+        getRootSuite suite
+      else suite
+
+    addCloseBrowserHook browserScopeSuite, browser
 
     done err
 

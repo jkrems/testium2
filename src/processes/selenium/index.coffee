@@ -30,9 +30,64 @@ NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ###
 
+path = require 'path'
+
+{ensure: ensureBinaries} = require 'selenium-download'
+async = require 'async'
+
+{spawnServer} = require '../server'
+{findOpenPort} = require '../port'
+initLogs = require '../../logs'
+
+BIN_PATH = path.join(__dirname, '..', '..', '..', 'bin')
+SELENIUM_TIMEOUT = 90000 # 90 seconds
+
+ensureSeleniumListening = (url, callback) ->
+  callback new Error 'Not implemented'
+
+createSeleniumArguments = ->
+  chromeDriverPath = path.join BIN_PATH, 'chromedriver'
+  chromeArgs = [
+    '--disable-application-cache'
+    '--media-cache-size=1'
+    '--disk-cache-size=1'
+    '--disk-cache-dir=/dev/null'
+    '--disable-cache'
+    '--disable-desktop-notifications'
+  ].join(' ')
+  firefoxProfilePath = path.join __dirname, './firefox_profile.js'
+
+  [
+    "-Dwebdriver.chrome.driver=#{chromeDriverPath}"
+    "-Dwebdriver.chrome.args=\"#{chromeArgs}\""
+    '-firefoxProfileTemplate', firefoxProfilePath
+    '-ensureCleanSession'
+    '-debug'
+  ]
 
 spawnSelenium = (config, callback) ->
-  console.log config
-  callback new Error 'Not implemented'
+  if config.seleniumServerUrl
+    return ensureSeleniumListening config.seleniumServerUrl, callback
+
+  logs = initLogs config
+
+  async.auto {
+    port: findOpenPort
+
+    binaries: (done) -> ensureBinaries(BIN_PATH, done)
+
+    selenium: [ 'port', 'binaries', (done, {port}) ->
+      jarPath = path.join BIN_PATH, 'selenium.jar'
+      args = [
+        '-Xmx256m'
+        '-jar', jarPath
+        '-port', "#{port}"
+      ].concat createSeleniumArguments()
+      options = { port, timeout: SELENIUM_TIMEOUT }
+      spawnServer logs, 'selenium', 'java', args, options, done
+    ]
+  }, (error, {selenium, port}) ->
+    selenium.driverUrl = "#{selenium.baseUrl}/wd/hub"
+    callback error, selenium
 
 module.exports = spawnSelenium

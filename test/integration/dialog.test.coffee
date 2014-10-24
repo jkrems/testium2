@@ -16,7 +16,7 @@ describe 'dialogs', ->
     @target = @browser.getElement '#alert_target'
     @browser.click '.link_to_clear_alert_target'
 
-  describe 'alert', ->
+  xdescribe 'alert', ->
     beforeEach ->
       @browser.click '.link_to_open_an_alert'
 

@@ -86,15 +86,18 @@ getBrowser = (options, done) ->
       {driverUrl} = selenium
       {desiredCapabilities} = config
       debug 'WebDriver(%j)', driverUrl, desiredCapabilities
-      cachedDriver = new WebDriver driverUrl, desiredCapabilities
+      new WebDriver driverUrl, desiredCapabilities
 
     createBrowser = ->
-      useCachedDriver = reuseSession && cachedDriver?
+      usedCachedDriver = reuseSession && cachedDriver?
       driver =
-        if useCachedDriver then cachedDriver else createDriver()
+        if reuseSession
+          cachedDriver ?= createDriver()
+        else
+          createDriver()
 
       browser = new Browser driver, proxy.baseUrl, 'http://127.0.0.1:4446'
-      browser.init { skipPriming: useCachedDriver, keepCookies }
+      browser.init { skipPriming: usedCachedDriver, keepCookies }
 
       applyMixins browser, config.mixins?.browser
       applyMixins browser.assert, config.mixins?.assert

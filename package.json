@@ -45,6 +45,7 @@
     "portscanner": "^1.0.0",
     "rc": "~0.5.1",
     "read-package-json": "^1.2.7",
+    "selenium-download": "~1.2.0",
     "semver": "~4.1.0",
     "webdriver-http-sync": "git://github.com/groupon-testium/webdriver-http-sync#jk/value-is-an-attribute"
   },

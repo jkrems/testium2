@@ -65,8 +65,11 @@ class Browser
   close: (callback) ->
     hasType 'close(callback) - requires (Function) callback', Function, callback
 
-    @driver.close()
-    callback()
+    try
+      @driver.close()
+      callback()
+    catch error
+      return callback error
 
   evaluate: (clientFunction) ->
     if arguments.length > 1

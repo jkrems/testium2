@@ -100,7 +100,7 @@ modifyRequest = (request, options) ->
     request.headers[header] = value
 
 proxyRequest = (request, response, modifyResponse, toPort) ->
-  if firstPage
+  if firstPage || request.url == '/testium-priming-load'
     firstPage = false
     console.log "--> #{request.method} #{request.url} (prime the browser)"
     return emptySuccess(response)
