@@ -30,44 +30,23 @@ NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ###
 
-{crop: cropScreenshot} = require '../img_diff'
-{hasType} = require 'assertive'
+assert = require 'assertive'
 
 module.exports =
-  getPageTitle: ->
-    @driver.getPageTitle()
+  switchToDefaultFrame: ->
+    @driver.switchToFrame(null)
 
-  getPageSource: ->
-    @driver.getPageSource()
+  switchToFrame: (indexOrNameOrId) ->
+    assert.truthy 'switchToFrame(indexOrNameOrId) - requires (Number|String) indexOrNameOrId', indexOrNameOrId
+    @driver.switchToFrame(indexOrNameOrId)
 
-  _cropScreenshotBySelector: (screenshot, selector) ->
-    element = @driver.getElement(selector)
-    position = element.getLocationInView()
-    size = element.getSize()
+  switchToDefaultWindow: ->
+    assert.truthy 'Attempted to locate the root window, but failed. Did you navigate to a URL first?', @driver.rootWindow
+    @driver.switchToWindow(@driver.rootWindow)
 
-    elementData =
-      x: position.x
-      y: position.y
-      width: size.width
-      height: size.height
+  switchToWindow: (name) ->
+    assert.truthy 'switchToWindow(name) - requires (String) name', name
+    @driver.switchToWindow(name)
 
-    cropScreenshot(screenshot, elementData)
-
-  getScreenshot: (selector) ->
-    if selector?
-      hasType 'getScreenshot(selector) - requires (String) selector or nothing', String, selector
-      screenshot = @driver.getScreenshot()
-      @_cropScreenshotBySelector(screenshot, selector)
-    else
-      @driver.getScreenshot()
-
-  setPageSize: (size) ->
-    invocation = 'setPageSize(size={height, width})'
-    hasType "#{invocation} - requires (Object) size", Object, size
-    {height, width} = size
-    hasType "#{invocation} - requires (Number) size.height", Number, height
-    hasType "#{invocation} - requires (Number) size.width", Number, width
-    @driver.setPageSize {height, width}
-
-  getPageSize: ->
-    @driver.getPageSize()
+  closeWindow: ->
+    @driver.closeWindow()

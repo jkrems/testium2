@@ -30,44 +30,9 @@ NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ###
 
-{crop: cropScreenshot} = require '../img_diff'
-{hasType} = require 'assertive'
 
-module.exports =
-  getPageTitle: ->
-    @driver.getPageTitle()
+spawnSelenium = (config, callback) ->
+  console.log config
+  callback new Error 'Not implemented'
 
-  getPageSource: ->
-    @driver.getPageSource()
-
-  _cropScreenshotBySelector: (screenshot, selector) ->
-    element = @driver.getElement(selector)
-    position = element.getLocationInView()
-    size = element.getSize()
-
-    elementData =
-      x: position.x
-      y: position.y
-      width: size.width
-      height: size.height
-
-    cropScreenshot(screenshot, elementData)
-
-  getScreenshot: (selector) ->
-    if selector?
-      hasType 'getScreenshot(selector) - requires (String) selector or nothing', String, selector
-      screenshot = @driver.getScreenshot()
-      @_cropScreenshotBySelector(screenshot, selector)
-    else
-      @driver.getScreenshot()
-
-  setPageSize: (size) ->
-    invocation = 'setPageSize(size={height, width})'
-    hasType "#{invocation} - requires (Object) size", Object, size
-    {height, width} = size
-    hasType "#{invocation} - requires (Number) size.height", Number, height
-    hasType "#{invocation} - requires (Number) size.width", Number, width
-    @driver.setPageSize {height, width}
-
-  getPageSize: ->
-    @driver.getPageSize()
+module.exports = spawnSelenium

@@ -1,15 +1,16 @@
-# {getBrowser} = require '../../lib/index'
-# assert = require 'assertive'
+injectBrowser = require '../../mocha'
+assert = require 'assertive'
 
-# describe 'page data', ->
-#   before ->
-#     @browser = getBrowser()
-#     @browser.navigateTo '/'
+describe 'page data', ->
+  before injectBrowser()
 
-#   it 'title', ->
-#     title = @browser.getPageTitle()
-#     assert.equal 'Test Title', title
+  before ->
+    @browser.navigateTo '/'
 
-#   it 'source', ->
-#     source = @browser.getPageSource()
-#     assert.include 'DOCTYPE', source
+  it 'title', ->
+    title = @browser.getPageTitle()
+    assert.equal 'Test Title', title
+
+  it 'source', ->
+    source = @browser.getPageSource()
+    assert.include 'DOCTYPE', source

@@ -39,6 +39,7 @@ debug = require('debug')('testium:processes')
 {findOpenPort} = require './port'
 spawnProxy = require './proxy'
 spawnPhantom = require './phantom'
+spawnSelenium = require './selenium'
 spawnApplication = require './application'
 
 ensureAppPort = (config, done) ->
@@ -63,7 +64,11 @@ initProcesses = ->
     async.auto {
       ensureAppPort: (done) -> ensureAppPort(config, done)
 
-      phantom: (done) -> spawnPhantom(config, done)
+      selenium: (done) ->
+        if config.desiredCapabilities.browserName == 'phantomjs'
+          spawnPhantom(config, done)
+        else
+          spawnSelenium(config, done)
 
       proxy: [ 'ensureAppPort', (done) ->
         spawnProxy(config, done)

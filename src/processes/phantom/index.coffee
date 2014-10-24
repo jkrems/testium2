@@ -45,6 +45,7 @@ spawnPhantom = (config, callback) ->
     ]
     spawnServer logs, 'phantomjs', 'phantomjs', args, {port}, (error, phantom) ->
       return callback(error) if error?
+      phantom.driverUrl = "#{phantom.baseUrl}/wd/hub"
       callback null, phantom
 
 module.exports = spawnPhantom

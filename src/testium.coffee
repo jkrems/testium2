@@ -54,6 +54,16 @@ applyMixins = (obj, mixins = []) ->
 
 cachedDriver = null
 
+RESOURCE_TIMEOUT = 'phantomjs.page.settings.resourceTimeout'
+ensureDesiredCapabilities = (config) ->
+  capabilities = config.desiredCapabilities ? {}
+  capabilities.browserName ?= config.browser
+  switch capabilities.browserName
+    when 'phantomjs'
+      capabilities[RESOURCE_TIMEOUT] ?= 2500
+
+  config.desiredCapabilities = capabilities
+
 getBrowser = (options, done) ->
   if typeof options == 'function'
     done = options
@@ -66,15 +76,15 @@ getBrowser = (options, done) ->
     getBrowser requires a callback, please check the docs for breaking changes
   ''', Function, done
 
+  ensureDesiredCapabilities config
+
   processes.ensureRunning config, (err, results) =>
     return done(err) if err?
-    {phantom, proxy} = results
+    {selenium, proxy} = results
 
     createDriver = ->
-      driverUrl = "#{phantom.baseUrl}/wd/hub"
-      desiredCapabilities =
-        browserName: 'phantomjs'
-        'phantomjs.page.settings.resourceTimeout': 2500
+      {driverUrl} = selenium
+      {desiredCapabilities} = config
       debug 'WebDriver(%j)', driverUrl, desiredCapabilities
       cachedDriver = new WebDriver driverUrl, desiredCapabilities
 

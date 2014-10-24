@@ -37,6 +37,7 @@ class Assertions
 
 [
   require('./element')
+  require('../img_diff')
   require('./imgLoaded')
   require('./navigation')
 ].forEach (mixin) ->

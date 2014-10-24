@@ -30,44 +30,43 @@ NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ###
 
-{crop: cropScreenshot} = require '../img_diff'
-{hasType} = require 'assertive'
+{isRegExp} = require 'lodash'
 
-module.exports =
-  getPageTitle: ->
-    @driver.getPageTitle()
+quoteRegExp = (string) ->
+  string.replace /[-\\\/\[\]{}()*+?.^$|]/g, '\\$&'
 
-  getPageSource: ->
-    @driver.getPageSource()
+bothCases = (alpha) ->
+  up = alpha.toUpperCase()
+  dn = alpha.toLowerCase()
+  "[#{ up }#{ dn }]"
 
-  _cropScreenshotBySelector: (screenshot, selector) ->
-    element = @driver.getElement(selector)
-    position = element.getLocationInView()
-    size = element.getSize()
+isHexaAlphaRE = /[a-f]/gi
 
-    elementData =
-      x: position.x
-      y: position.y
-      width: size.width
-      height: size.height
+matchCharacter = (uriEncoded, hex) ->
+  uriEncoded = uriEncoded.replace isHexaAlphaRE, bothCases
+  codepoint = parseInt hex, 16
+  character = String.fromCharCode codepoint
+  character = quoteRegExp character
+  character += '|\\+'  if character is ' ' # grok form-url-encoded spaces too
+  "(?:#{ uriEncoded }|#{ character })"
 
-    cropScreenshot(screenshot, elementData)
+encodedCharRE = /%([0-9a-f]{2})/gi
 
-  getScreenshot: (selector) ->
-    if selector?
-      hasType 'getScreenshot(selector) - requires (String) selector or nothing', String, selector
-      screenshot = @driver.getScreenshot()
-      @_cropScreenshotBySelector(screenshot, selector)
-    else
-      @driver.getScreenshot()
+# produce a regexp string that matches a URI-encoded or non-URI-encoded string
+matchURI = (stringOrRegExp) ->
+  if isRegExp stringOrRegExp # just strip literal /s (and trailing flags) flags
+    return stringOrRegExp.toString().replace /^\/|\/\w*$/g, ''
 
-  setPageSize: (size) ->
-    invocation = 'setPageSize(size={height, width})'
-    hasType "#{invocation} - requires (Object) size", Object, size
-    {height, width} = size
-    hasType "#{invocation} - requires (Number) size.height", Number, height
-    hasType "#{invocation} - requires (Number) size.width", Number, width
-    @driver.setPageSize {height, width}
+  fullyEncoded = encodeURIComponent stringOrRegExp
+  quoteRegExp(fullyEncoded).replace encodedCharRE, matchCharacter
 
-  getPageSize: ->
-    @driver.getPageSize()
+module.exports = (url, query = {}) ->
+  url = matchURI url
+
+  for own key, val of query
+    key = matchURI key
+    val = matchURI val
+    # match every query param via a clever positive look-ahead hack
+    url += "(?=(?:\\?|.*&)#{ key }=#{ val })"
+
+  new RegExp url

@@ -34,9 +34,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 qs = require 'querystring'
 
 {hasType} = require 'assertive'
-{omit, defaults} = require 'lodash'
+{omit, defaults, isObject} = require 'lodash'
 
 waitFor = require './wait'
+makeUrlRegExp = require './makeUrlRegExp'
 
 NavigationMixin =
   navigateTo: (url, options = {}) ->

@@ -95,6 +95,7 @@ Object.defineProperty Browser.prototype, 'capabilities', {
   require('./input')
   require('./navigation')
   require('./page')
+  require('./window')
 ].forEach (mixin) ->
   extend Browser.prototype, mixin
 

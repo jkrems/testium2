@@ -24,10 +24,16 @@ test-unit: build
 	@echo ""
 	@echo ""
 
-test-integration-all: build
-	@testium_browser=phantomjs make test-integration
+firefox: build
 	@testium_browser=firefox make test-integration
+
+chrome: build
 	@testium_browser=chrome make test-integration
+
+phantomjs: build
+	@testium_browser=phantomjs make test-integration
+
+test-integration-all: phantomjs firefox chrome
 
 build:
 	@./node_modules/.bin/coffee --no-header -cbo lib src
