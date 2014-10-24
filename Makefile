@@ -4,8 +4,7 @@ setup:
 	npm install
 
 .PHONY: test
-test: test-unit test-integration
-# test-integration test-screenshot
+test: test-unit test-screenshot test-integration
 
 test-integration: build
 	@echo "# Integration Tests #"
@@ -15,7 +14,7 @@ test-integration: build
 
 test-screenshot: build
 	@echo "# Automatic Screenshot Tests #"
-	@./node_modules/.bin/coffee test/screenshot_integration_runner.coffee
+	@./node_modules/.bin/mocha test/screenshots.test.coffee
 	@echo ""
 	@echo ""
 
@@ -25,10 +24,10 @@ test-unit: build
 	@echo ""
 	@echo ""
 
-test-all: build
-	@BROWSER=phantomjs,firefox,chrome make test-integration
-	@make test-screenshot
-	@make test-unit
+test-integration-all: build
+	@testium_browser=phantomjs make test-integration
+	@testium_browser=firefox make test-integration
+	@testium_browser=chrome make test-integration
 
 build:
 	@./node_modules/.bin/coffee --no-header -cbo lib src
@@ -43,9 +42,6 @@ prepublish:
 clean:
 	@rm -rf lib
 	@rm -rf test/integration_log
-	@rm -rf test/integration_screenshots
-	@rm -rf test/screenshot_integration_log
-	@rm -rf test/screenshot_integration_screenshots
 
 # This will fail if there are unstaged changes in the checkout
 test-checkout-clean:

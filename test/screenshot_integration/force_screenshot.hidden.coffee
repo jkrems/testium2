@@ -1,3 +1,6 @@
+# The file suffix is .hidden.coffee so mocha does not run this
+# by default (it only does this with .test.coffee).
+
 injectBrowser = require '../../mocha'
 assert = require 'assertive'
 

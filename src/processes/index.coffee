@@ -36,9 +36,19 @@ async = require 'async'
 {extend} = require 'lodash'
 debug = require('debug')('testium:processes')
 
+{findOpenPort} = require './port'
 spawnProxy = require './proxy'
 spawnPhantom = require './phantom'
 spawnApplication = require './application'
+
+ensureAppPort = (config, done) ->
+  if config.appPort == 0
+    findOpenPort (err, port) ->
+      return done(err) if err?
+      config.appPort = port
+      done()
+  else
+    done()
 
 initProcesses = ->
   cached = null
@@ -51,9 +61,17 @@ initProcesses = ->
 
     debug 'Launching processes'
     async.auto {
-      proxy: (done) -> spawnProxy(config, done)
+      ensureAppPort: (done) -> ensureAppPort(config, done)
+
       phantom: (done) -> spawnPhantom(config, done)
-      application: (done) -> spawnApplication(config, done)
+
+      proxy: [ 'ensureAppPort', (done) ->
+        spawnProxy(config, done)
+      ]
+
+      application: [ 'ensureAppPort', (done) ->
+        spawnApplication(config, done)
+      ]
     }, (error, results) ->
       cached = {error, results}
       callback error, results

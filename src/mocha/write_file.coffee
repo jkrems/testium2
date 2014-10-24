@@ -30,32 +30,27 @@ NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ###
 
-debug = require('debug')('testium:mocha')
+path = require 'path'
+{writeFileSync, existsSync} = require 'fs'
 
-config = require './config'
-{getBrowser} = require './testium'
+module.exports = (directory, title, data, encoding='base64') ->
+  file = getFile(directory, title)
+  writeFileSync file, data, encoding
+  file
 
-setMochaTimeouts = (obj) ->
-  obj.timeout +config.mocha.timeout
-  obj.slow +config.mocha.slow
+getFile = (directory, title) ->
+  # Take the test title and remove all special characters; limit to 20 characters
+  name = title.replace(/[^\w]/g, '_').replace(/_{2,}/g, '_').substr(0, 40)
 
-deepMochaTimeouts = (suite) ->
-  setMochaTimeouts suite
-  suite.suites.forEach deepMochaTimeouts
-  suite.tests.forEach setMochaTimeouts
-  suite._beforeEach.forEach setMochaTimeouts
-  suite._beforeAll.forEach setMochaTimeouts
-  suite._afterEach.forEach setMochaTimeouts
-  suite._afterAll.forEach setMochaTimeouts
+  filePath = path.join directory, name
+  uniqueFile filePath
 
-injectBrowser = (options = {}) -> (done) ->
-  debug 'Overriding mocha timeouts', config.mocha
-  deepMochaTimeouts @_runnable.parent
+uniqueFile = (file) ->
+  testPath = file
+  counter = null
+  while existsSync "#{testPath}.png"
+    counter ||= 0
+    counter++
 
-  initialTimeout = +config.launchTimeout
-  initialTimeout += +config.mocha.timeout
-  @timeout initialTimeout
-
-  getBrowser options, (err, @browser) => done err
-
-module.exports = injectBrowser
+    testPath = "#{file}#{counter}"
+  "#{testPath}.png"

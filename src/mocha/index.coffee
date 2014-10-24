@@ -30,18 +30,45 @@ NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ###
 
-rc = require 'rc'
+path = require 'path'
 
-getDefaults = ->
-  browser: 'phantomjs'
-  appDirectory: process.cwd()
-  logDirectory: './test/log'
-  screenshotDirectory: './test/log/failed_screenshots'
-  appPort: process.env.PORT || 0
-  launch: false
-  launchTimeout: 30000
-  mocha:
-    timeout: 20000
-    slow: 2000
+debug = require('debug')('testium:mocha')
 
-module.exports = rc 'testium', getDefaults()
+config = require '../config'
+{getBrowser} = require '../testium'
+takeScreenshotOnFailure = require './screenshot'
+
+setMochaTimeouts = (obj) ->
+  obj.timeout +config.mocha.timeout
+  obj.slow +config.mocha.slow
+
+deepMochaTimeouts = (suite) ->
+  setMochaTimeouts suite
+  suite.suites.forEach deepMochaTimeouts
+  suite.tests.forEach setMochaTimeouts
+  suite._beforeEach.forEach setMochaTimeouts
+  suite._beforeAll.forEach setMochaTimeouts
+  suite._afterEach.forEach setMochaTimeouts
+  suite._afterAll.forEach setMochaTimeouts
+
+injectBrowser = (options = {}) -> (done) ->
+  debug 'Overriding mocha timeouts', config.mocha
+  suite = @_runnable.parent
+  deepMochaTimeouts suite
+
+  initialTimeout = +config.launchTimeout
+  initialTimeout += +config.mocha.timeout
+  @timeout initialTimeout
+
+  getBrowser options, (err, @browser) =>
+    screenshotDirectory = config.screenshotDirectory
+    if screenshotDirectory
+      screenshotDirectory =
+        path.resolve config.appDirectory, screenshotDirectory
+
+      afterEachHook = takeScreenshotOnFailure screenshotDirectory
+      suite.afterEach 'takeScreenshotOnFailure', afterEachHook
+
+    done err
+
+module.exports = injectBrowser
